@@ -1,0 +1,3484 @@
+{
+  "name": "Crm_sanluciano",
+  "nodes": [
+    {
+      "parameters": {
+        "table": {
+          "__rl": true,
+          "value": "usuarios",
+          "mode": "list",
+          "cachedResultName": "usuarios"
+        },
+        "dataMode": "defineBelow",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "nombre_completo",
+              "value": "={{ $json.body.name }}"
+            },
+            {
+              "column": "email",
+              "value": "={{ $json.body.email }}"
+            },
+            {
+              "column": "password_hash",
+              "value": "={{ $node[\"Crypto\"].json.hashed_password }}"
+            },
+            {
+              "column": "roll",
+              "value": "={{ $json.roll }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        1152,
+        304
+      ],
+      "id": "b94f7c08-8700-4d2a-be35-b31615f7fa5b",
+      "name": "Insert rows in a table",
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "producción",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        48,
+        304
+      ],
+      "id": "8bf8a1c9-ddba-4d8f-b87f-aa6537d05617",
+      "name": "Webhook",
+      "webhookId": "f5985e50-428d-4296-97e7-55c306406639"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.success }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1360,
+        304
+      ],
+      "id": "d491f1b6-f7a9-495b-8abe-e917604bcc6c",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "content": "## Validacion Registro Exitoso\n**Double click** to edit me. [Guide](https://docs.n8n.io/workflows/sticky-notes/)",
+        "height": 624,
+        "width": 1584
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -32,
+        16
+      ],
+      "typeVersion": 1,
+      "id": "eeec89a2-8cae-4c43-beaf-26083d0437b8",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "YOUR_REGISTER_WEBHOOK_ID_HERE",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        32,
+        960
+      ],
+      "id": "921d2f3a-67e9-4b3b-9c39-32fde160ddf9",
+      "name": "Webhook1",
+      "webhookId": "69726d6c-d456-4e25-976e-63ceb9a0d054"
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "table": {
+          "__rl": true,
+          "value": "usuarios",
+          "mode": "list",
+          "cachedResultName": "usuarios"
+        },
+        "returnAll": true,
+        "where": {
+          "values": [
+            {
+              "column": "email",
+              "value": "={{ $node[\"Webhook1\"].json.body.email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        192,
+        960
+      ],
+      "id": "ab8004ad-641f-4051-bf1e-101e8d602c05",
+      "name": "Select rows from a table",
+      "alwaysOutputData": false,
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "46906284-c543-4ceb-837a-f2342f40a9c2",
+              "name": "dominio",
+              "value": "={{ $node[\"Webhook\"].json.body.email.split('@')[1] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        304
+      ],
+      "id": "47a2c5d5-3e74-4076-8655-415365270fee",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d5e92e4a-f044-4f40-bda9-7e4a7d552bde",
+                    "leftValue": "={{ $json.dominio }}",
+                    "rightValue": "gmail.com",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "48a76b86-54b7-4dd4-95c3-cb4a5e8bf572",
+                    "leftValue": "={{ $json.dominio }}",
+                    "rightValue": "hotmail.com",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "1a9c738e-dc9c-42dd-b481-4fa9d7398e8e",
+                    "leftValue": "={{ $json.dominio }}",
+                    "rightValue": "outlook.com",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        432,
+        288
+      ],
+      "id": "500b7e9a-1fb4-4088-921b-8c4a7545862c",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5d9e97b6-aec5-4d48-8918-663d20ba7b2c",
+              "name": "roll",
+              "value": "usuario",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        608,
+        160
+      ],
+      "id": "f5345573-969c-4392-b822-05784e213c44",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "89639a41-a71f-45f8-89a6-fb4c268439a0",
+              "name": "roll",
+              "value": "usuario",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        608,
+        304
+      ],
+      "id": "d462c661-c0b2-4333-872a-ab38bcaa8101",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "54a45f18-44f0-41d5-974c-54ffe05b830f",
+              "name": "roll",
+              "value": "usuario",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        608,
+        464
+      ],
+      "id": "c99f6673-5097-47e9-94c8-1d76442e1155",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        816,
+        288
+      ],
+      "id": "db252675-1a98-49ee-96bd-530f24964510",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "type": "SHA256",
+        "value": "={{ $json.body.password}}",
+        "dataPropertyName": "hashed_password"
+      },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [
+        976,
+        304
+      ],
+      "id": "fca59674-53af-4dd4-aca7-d9716691feb5",
+      "name": "Crypto"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8b6a6dda-bd63-42e3-a97e-a3a599d2835d",
+              "leftValue": "={{ $node[\"Select rows from a table\"].json.id }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        384,
+        960
+      ],
+      "id": "6a543bc9-645b-4a0e-9559-f8a22e6326b5",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "type": "SHA256",
+        "value": "={{ $node[\"Webhook1\"].json.body.password }}",
+        "dataPropertyName": "hashed_login_password"
+      },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [
+        496,
+        784
+      ],
+      "id": "c3112112-cf32-4b1c-947c-5c3a45e6bce5",
+      "name": "Crypto1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "22f241e3-bf22-46f6-8646-b42bc554e9d2",
+              "leftValue": "={{ $node[\"Crypto1\"].json.hashed_login_password }}",
+              "rightValue": "={{ $node[\"Select rows from a table\"].json.password_hash }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        688,
+        784
+      ],
+      "id": "6ee058e2-c6ea-4970-82c5-efc9a631b00e",
+      "name": "Si_Compara_Hash"
+    },
+    {
+      "parameters": {
+        "type": "SHA256",
+        "value": "={   \"email\": \"{{ $node[\"Select rows from a table\"].json.email }}\",   \"roll\": \"{{ $node[\"Select rows from a table\"].json.roll }}\" }"
+      },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [
+        896,
+        768
+      ],
+      "id": "eae80e32-13d0-44ca-8b73-649aa4fae579",
+      "name": "Cripto_JWT"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"token\": \"{{ $node[\"Cripto_JWT\"].json }}\",\n  \"roll\": \"{{ $node[\"Select rows from a table\"].json.roll }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1072,
+        768
+      ],
+      "id": "e20a9032-18e1-4b67-bb7c-d6697b233c18",
+      "name": "Respond to Webhook2"
+    },
+    {
+      "parameters": {
+        "content": "## Validacion Iniciar sesion \n**Double click** to edit me. [Guide](https://docs.n8n.io/workflows/sticky-notes/)",
+        "height": 576,
+        "width": 1328
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -32,
+        688
+      ],
+      "typeVersion": 1,
+      "id": "95d7fd3e-6a72-4778-972c-14529eac0f16",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"message\": \"Credenciales incorrectas\"\n}",
+        "options": {
+          "responseCode": 401
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        880,
+        976
+      ],
+      "id": "3176b5da-6820-4518-8a90-8a04a11c44ec",
+      "name": "Respuesta_Error_401"
+    },
+    {
+      "parameters": {
+        "content": "## Funcionalidades administrador\n**Double click** to edit me. [Guide](https://docs.n8n.io/workflows/sticky-notes/)",
+        "height": 3456,
+        "width": 1072
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1616,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "9672b097-a6e7-419a-a8ea-1502cf95705d",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "URL_PRODUCCION_REGISTRAR_RESIDENTE",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1760,
+        96
+      ],
+      "id": "a4d1daf4-5ec5-46b3-a947-e191fa9b6f24",
+      "name": "Webhook2",
+      "webhookId": "9f5a8833-6774-486d-879b-e3c4ab742023"
+    },
+    {
+      "parameters": {
+        "table": {
+          "__rl": true,
+          "value": "ficha_residente",
+          "mode": "list",
+          "cachedResultName": "ficha_residente"
+        },
+        "dataMode": "defineBelow",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "rut",
+              "value": "={{ $json.body.rut }}"
+            },
+            {
+              "column": "nombre_completo",
+              "value": "={{ $json.body.nombre_completo }}"
+            },
+            {
+              "column": "fecha_nacimiento",
+              "value": "={{ $json.body.fecha_nacimiento }}"
+            },
+            {
+              "column": "sexo",
+              "value": "={{ $json.body.sexo }}"
+            },
+            {
+              "column": "estado_civil",
+              "value": "={{ $json.body.estado_civil }}"
+            },
+            {
+              "column": "estado",
+              "value": "={{ $json.body.estado}}"
+            },
+            {
+              "column": "fecha_ingreso",
+              "value": "={{ $json.body.fecha_ingreso}}"
+            },
+            {
+              "column": "habitacion_numero",
+              "value": "={{ $json.body.habitacion_numero}}"
+            },
+            {
+              "column": "motivo_ingreso",
+              "value": "={{ $json.body.motivo_ingreso}}"
+            },
+            {
+              "column": "direccion",
+              "value": "={{ $json.body.direccion}}"
+            },
+            {
+              "column": "telefono",
+              "value": "={{ $json.body.telefono}}"
+            },
+            {
+              "column": "email",
+              "value": "={{ $json.body.email}}"
+            },
+            {
+              "column": "contacto_emergencia_nombre",
+              "value": "={{ $json.body.contacto_emergencia_nombre}}"
+            },
+            {
+              "column": "contacto_emergencia_relacion",
+              "value": "={{ $json.body.contacto_emergencia_relacion}}"
+            },
+            {
+              "column": "contacto_emergencia_telefono",
+              "value": "={{ $json.body.contacto_emergencia_telefono}}"
+            },
+            {
+              "column": "responsable_legal_nombre",
+              "value": "={{ $json.body.responsable_legal_nombre}}"
+            },
+            {
+              "column": "responsable_legal_telefono",
+              "value": "={{ $json.body.responsable_legal_telefono}}"
+            },
+            {
+              "column": "diagnosticos_actuales",
+              "value": "={{ $json.body.diagnosticos_actuales}}"
+            },
+            {
+              "column": "antecedentes_medicos",
+              "value": "={{ $json.body.antecedentes_medicos}}"
+            },
+            {
+              "column": "alergias",
+              "value": "={{ $json.body.alergias}}"
+            },
+            {
+              "column": "medicamentos_actuales",
+              "value": "={{ $json.body.medicamentos_actuales}}"
+            },
+            {
+              "column": "controles_medicos_programados",
+              "value": "={{ $json.body.controles_medicos_programados}}"
+            },
+            {
+              "column": "tipo_movilidad",
+              "value": "={{ $json.body.tipo_movilidad}}"
+            },
+            {
+              "column": "estado_cognitivo",
+              "value": "={{ $json.body.estado_cognitivo}}"
+            },
+            {
+              "column": "discapacidad_dependencia",
+              "value": "={{ $json.body.discapacidad_dependencia}}"
+            },
+            {
+              "column": "tipo_dieta",
+              "value": "={{ $json.body.tipo_dieta}}"
+            },
+            {
+              "column": "restricciones_alimenticias",
+              "value": "={{ $json.body.restricciones_alimenticias}}"
+            },
+            {
+              "column": "preferencias_alimenticias",
+              "value": "={{ $json.body.preferencias_alimenticias}}"
+            },
+            {
+              "column": "info_psicologica",
+              "value": "={{ $json.body.info_psicologica}}"
+            },
+            {
+              "column": "documentacion_adjunta_notas",
+              "value": "={{ $json.body.documentacion_adjunta_notas}}"
+            },
+            {
+              "column": "foto_url",
+              "value": "={{ $json.body.foto_url}}"
+            },
+            {
+              "column": "id_usuario",
+              "value": "={{ $json.body.usuario_id}}"
+            },
+            {
+              "column": "consentimientos_informados_archivo",
+              "value": "={{ $json.body.consentimientos_informados_archivo}}"
+            },
+            {
+              "column": "plan_cuidado_personalizado_archivo",
+              "value": "={{ $json.body.plan_cuidado_personalizado_archivo}}"
+            },
+            {
+              "column": "historial_medico_archivo",
+              "value": "={{ $json.body.historial_medico_archivo}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        1968,
+        96
+      ],
+      "id": "a35113e1-8652-4487-a067-1176ffcec9a9",
+      "name": "Insert rows in a table1",
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"message\": \"Residente registrado exitosamente\"\n}",
+        "options": {
+          "responseCode": 201
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2160,
+        96
+      ],
+      "id": "e28fc4ba-b81c-4806-9be5-a437e93a65d7",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "content": "## Registro sintomas tens\n**Double click** to edit me. [Guide](https://docs.n8n.io/workflows/sticky-notes/)",
+        "height": 368,
+        "width": 608
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        1344
+      ],
+      "typeVersion": 1,
+      "id": "046819fc-adef-442b-afac-c6c2aa9dc36a",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "path": "get-residentes",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1760,
+        288
+      ],
+      "id": "2518c719-97c6-452f-846a-a5ffcb392c63",
+      "name": "Webhook3",
+      "webhookId": "1f3dfc6c-fb4c-4a36-9852-b6f72a5e4338"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM ficha_residente ORDER BY id DESC;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        1968,
+        288
+      ],
+      "id": "759f1bfe-0336-41b2-883f-8acf380b26a0",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2384,
+        288
+      ],
+      "id": "242b4593-c96c-476a-8ad7-7cfa86deddd5",
+      "name": "Respond to Webhook3"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2176,
+        288
+      ],
+      "id": "5d6ab568-68cf-4cae-b590-67c0afb19ce4",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "registro-tens",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        32,
+        1504
+      ],
+      "id": "c930fa07-8191-4f2e-ad11-4abff12bedbc",
+      "name": "Webhook4",
+      "webhookId": "b4645c7d-5dc9-4cd4-b727-859f78234da4"
+    },
+    {
+      "parameters": {
+        "table": {
+          "__rl": true,
+          "value": "signos_vitales",
+          "mode": "list",
+          "cachedResultName": "signos_vitales"
+        },
+        "dataMode": "defineBelow",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "id_residente",
+              "value": "={{ $json.body.id_residente }}"
+            },
+            {
+              "column": "tens_id",
+              "value": "={{ $json.body.tens_responsable}}"
+            },
+            {
+              "column": "temperatura",
+              "value": "={{ $json.body.signos_vitales.temperatura }}"
+            },
+            {
+              "column": "presion_sistolica",
+              "value": "={{ $json.body.signos_vitales.presion_sistolica }}"
+            },
+            {
+              "column": "presion_diastolica",
+              "value": "={{ $json.body.signos_vitales.presion_diastolica }}"
+            },
+            {
+              "column": "frecuencia_cardiaca",
+              "value": "={{ $json.body.signos_vitales.frecuencia_cardiaca }}"
+            },
+            {
+              "column": "saturacion_oxigeno",
+              "value": "={{ $json.body.signos_vitales.saturacion_oxigeno }}"
+            },
+            {
+              "column": "observaciones",
+              "value": "={{ $json.body.observaciones }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        208,
+        1504
+      ],
+      "id": "a19dca73-1aaa-496b-ab80-33a34d960fd9",
+      "name": "Insert rows in a table2",
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"message\": \"Toma de signos vitales registrado exitosamente\"\n}",
+        "options": {
+          "responseCode": 201
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        368,
+        1504
+      ],
+      "id": "b31227c8-b4c0-45ec-9b34-7cae28dfe1ee",
+      "name": "Respond to Webhook4"
+    },
+    {
+      "parameters": {
+        "path": "usuarios",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1760,
+        480
+      ],
+      "id": "bea79bf0-fa52-4672-9d93-6bb6ff4658e6",
+      "name": "Webhook5",
+      "webhookId": "0b72cd12-704e-4ab3-8395-7c09bb3960cb"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, nombre_completo, email, roll FROM usuarios WHERE roll IN ('tens','usuario','admin');",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        1968,
+        480
+      ],
+      "id": "78a53df9-4da2-4422-a45f-0861a4cce9f7",
+      "name": "Execute a SQL query1",
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2144,
+        480
+      ],
+      "id": "11aeb36e-b633-46a4-af9d-5aa3bffc9180",
+      "name": "Aggregate1"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2352,
+        480
+      ],
+      "id": "fcb852c1-3a8d-402c-b64e-5ec9e6c2d6bd",
+      "name": "Respond to Webhook5"
+    },
+    {
+      "parameters": {
+        "path": "obtener-datos-graficos",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1760,
+        656
+      ],
+      "id": "9fbb1c95-5864-443a-92e4-f9bb17f4a088",
+      "name": "Webhook6",
+      "webhookId": "332939e4-7ede-439f-8600-eacbafce7a02"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT DATE(fecha_registro) as fecha, COUNT(*) as cantidad\nFROM signos_vitales\nGROUP BY DATE(fecha_registro)\nORDER BY fecha ASC;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        1968,
+        656
+      ],
+      "id": "e8f5766a-4492-4af5-a2ba-205fbd51f31c",
+      "name": "Execute a SQL query2",
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2176,
+        656
+      ],
+      "id": "f299f9d0-5392-4a4b-89be-1ef8966c043a",
+      "name": "Aggregate2"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2352,
+        656
+      ],
+      "id": "5efb1616-3b81-4a88-a130-7e816f9a393d",
+      "name": "Respond to Webhook6"
+    },
+    {
+      "parameters": {
+        "path": "get-registros",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1760,
+        832
+      ],
+      "id": "477d263b-646e-47a1-a35e-4112386b5af9",
+      "name": "Webhook7",
+      "webhookId": "bb5df42b-f2a4-4fd1-b96d-044059391be7"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT *\nFROM signos_vitales\nwhere id_residente={{ $json.query.id }};",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        1968,
+        832
+      ],
+      "id": "b08e21f8-721c-4d99-a13f-8fda0f78824d",
+      "name": "Execute a SQL query3",
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2320,
+        832
+      ],
+      "id": "2e2ce83e-aff2-4130-87ce-0166184c2d3c",
+      "name": "Respond to Webhook7"
+    },
+    {
+      "parameters": {
+        "path": "get-residente_individual",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1760,
+        1024
+      ],
+      "id": "e8870104-e8c5-4e32-8f7b-2a1e9a629cd5",
+      "name": "Webhook8",
+      "webhookId": "febebd86-237c-4978-aa80-c8f295f68257"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM ficha_residente WHERE id = {{ $json.query.id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        1968,
+        1024
+      ],
+      "id": "7a5ee287-dc4b-4a27-92ad-fbe68fbe8799",
+      "name": "Execute a SQL query4",
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2176,
+        1024
+      ],
+      "id": "68e78f7c-3bc8-4170-9d10-8036df20eb6d",
+      "name": "Respond to Webhook8"
+    },
+    {
+      "parameters": {
+        "content": "## Registro Contactanos\n**Double click** to edit me. [Guide](https://docs.n8n.io/workflows/sticky-notes/)",
+        "height": 368,
+        "width": 1088
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        1808
+      ],
+      "typeVersion": 1,
+      "id": "18fd6332-9ee5-4642-a617-3028f3c551d8",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "contact",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        96,
+        1952
+      ],
+      "id": "5f41627c-f4b5-4690-a669-de1fe18be651",
+      "name": "Webhook10",
+      "webhookId": "df124227-00cc-4b2f-97a6-d224783c0335"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "actualizar_personal",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1744,
+        1440
+      ],
+      "id": "2a9aca69-9d70-46f5-9351-e996738f8888",
+      "name": "Webhook11",
+      "webhookId": "607e431f-40ad-4d79-b005-dfaff2cda4a5"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE usuarios\nSET\n    nombre_completo = '{{ $json.body.nombre_completo }}',\n    email = '{{ $json.body.email }}'\nWHERE id = {{ $json.body.id }};",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        1952,
+        1440
+      ],
+      "id": "08682373-20e3-4378-b070-015f2f2b1a2c",
+      "name": "Execute a SQL query6",
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2352,
+        1440
+      ],
+      "id": "3ebb8d86-67f7-4250-8328-e006f3b83d98",
+      "name": "Respond to Webhook11"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        1440
+      ],
+      "id": "98dfe66b-5565-4172-ad65-e75633fbe18f",
+      "name": "Aggregate5"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "eliminar_personal",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1744,
+        1664
+      ],
+      "id": "dcf1be82-6d86-49b7-9dee-04e7b7a18305",
+      "name": "Webhook12",
+      "webhookId": "9d5d7633-3caa-4f45-9bf7-34dc1dfbacd0"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM usuarios\nWHERE id = {{ $json.body.id }};",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        1952,
+        1664
+      ],
+      "id": "12152a69-4136-4e75-80b4-2e365009fea6",
+      "name": "Execute a SQL query7",
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2160,
+        1664
+      ],
+      "id": "beaeb699-1513-46f3-ae5b-a3662de22453",
+      "name": "Respond to Webhook12"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "actualizar_residente",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1744,
+        1888
+      ],
+      "id": "5a8c839e-99c1-45e5-bda6-d979345c6daa",
+      "name": "Webhook13",
+      "webhookId": "f6463087-4793-47cc-83f3-bf5771f87159"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE ficha_residente\nSET\n    nombre_completo = '{{ $json.body.nombre_completo }}',\n    rut = '{{ $json.body.rut }}',\n    fecha_nacimiento = '{{ $json.body.fecha_nacimiento }}',\n    sexo = '{{ $json.body.sexo }}',\n    estado_civil = '{{ $json.body.estado_civil }}',\n    estado = '{{ $json.body.estado }}',\n    fecha_ingreso = '{{ $json.body.fecha_ingreso }}',\n    habitacion_numero = '{{ $json.body.habitacion_numero }}',\n    motivo_ingreso = '{{ $json.body.motivo_ingreso }}',\n    direccion = '{{ $json.body.direccion }}',\n    telefono = '{{ $json.body.telefono }}',\n    email = '{{ $json.body.email }}',\n    contacto_emergencia_nombre = '{{ $json.body.contacto_emergencia_nombre }}',\n    contacto_emergencia_relacion = '{{ $json.body.contacto_emergencia_relacion }}',\n    contacto_emergencia_telefono = '{{ $json.body.contacto_emergencia_telefono }}',\n    responsable_legal_nombre = '{{ $json.body.responsable_legal_nombre }}',\n    responsable_legal_telefono = '{{ $json.body.responsable_legal_telefono }}',\n    diagnosticos_actuales = '{{ $json.body.diagnosticos_actuales }}',\n    antecedentes_medicos = '{{ $json.body.antecedentes_medicos }}',\n    alergias = '{{ $json.body.alergias }}',\n    medicamentos_actuales = '{{ $json.body.medicamentos_actuales }}',\n    controles_medicos_programados = '{{ $json.body.controles_medicos_programados }}',\n    tipo_movilidad = '{{ $json.body.tipo_movilidad }}',\n    estado_cognitivo = '{{ $json.body.estado_cognitivo }}',\n    discapacidad_dependencia = '{{ $json.body.discapacidad_dependencia }}',\n    tipo_dieta = '{{ $json.body.tipo_dieta }}',\n    restricciones_alimenticias = '{{ $json.body.restricciones_alimenticias }}',\n    preferencias_alimenticias = '{{ $json.body.preferencias_alimenticias }}',\n    info_psicologica = '{{ $json.body.info_psicologica }}',\n    documentacion_adjunta_notas = '{{ $json.body.documentacion_adjunta_notas }}',\n    foto_url = '{{ $json.body.foto_url }}',\n    consentimientos_informados_archivo = '{{ $json.body.consentimientos_informados_archivo }}',\n    plan_cuidado_personalizado_archivo = '{{ $json.body.plan_cuidado_personalizado_archivo }}',\n    historial_medico_archivo = '{{ $json.body.historial_medico_archivo }}'\nWHERE id = {{ $json.body.id }};",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        1952,
+        1888
+      ],
+      "id": "a2d5248e-7911-4bb7-b500-3c965b6bdb77",
+      "name": "Execute a SQL query8",
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        1888
+      ],
+      "id": "219b1621-558f-4dc3-97b4-b652851253ad",
+      "name": "Aggregate6"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2368,
+        1888
+      ],
+      "id": "8251509a-7970-4647-8ebf-7c0de9678c6b",
+      "name": "Respond to Webhook13"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "eliminar_residente",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1728,
+        2128
+      ],
+      "id": "e241cb31-d940-4d92-8ded-4196c767ef16",
+      "name": "Webhook14",
+      "webhookId": "f743303e-416a-441f-8a7d-117e430792b7"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM ficha_residente\nWHERE id = {{ $json.body.id }};",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        1936,
+        2128
+      ],
+      "id": "e569d839-c859-42ee-afb6-3ceb3683ebaa",
+      "name": "Execute a SQL query9",
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2144,
+        2128
+      ],
+      "id": "b54389c1-99ed-4821-ab6c-de29fb0a87d2",
+      "name": "Respond to Webhook14"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "registrar_personal",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1728,
+        2368
+      ],
+      "id": "8d2126f4-1e02-49ee-9aad-131916a54c5d",
+      "name": "Webhook15",
+      "webhookId": "4210ed6c-865b-4473-b0bf-e62e67ad20c8"
+    },
+    {
+      "parameters": {
+        "type": "SHA256",
+        "value": "={{ $node[\"Webhook15\"].json.body.password }}",
+        "dataPropertyName": "hashed_password"
+      },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [
+        1936,
+        2368
+      ],
+      "id": "c0503f47-64e6-448f-925e-f2dd72b1b773",
+      "name": "Crypto2"
+    },
+    {
+      "parameters": {
+        "table": {
+          "__rl": true,
+          "value": "usuarios",
+          "mode": "list",
+          "cachedResultName": "usuarios"
+        },
+        "dataMode": "defineBelow",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "nombre_completo",
+              "value": "={{ $json.body.name }}"
+            },
+            {
+              "column": "email",
+              "value": "={{ $json.body.email }}"
+            },
+            {
+              "column": "password_hash",
+              "value": "={{ $node[\"Crypto2\"].json.hashed_password }}"
+            },
+            {
+              "column": "roll",
+              "value": "={{ $json.body.roll }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        2144,
+        2368
+      ],
+      "id": "7ebab87a-17f2-4e52-a3b5-02327bd27f45",
+      "name": "Insert rows in a table3",
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2352,
+        2368
+      ],
+      "id": "b0f2f15e-60e0-43b2-b7d9-f338a7e790d6",
+      "name": "Respond to Webhook15"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Eres un asistente virtual amigable y profesional del Hogar San Luciano.\nHas recibido la siguiente consulta a través de la página web:\n\n---\nDe: {{ $json.body.nombre }} {{ $json.body.apellidos }}\nCorreo: {{ $json.body.correo }}\nTeléfono: {{ $json.body.telefono }}\nMotivo: {{ $json.body.motivo }}\nResidencia de Interés: {{ $json.body.residencia }}\nMensaje:\n\"{{ $json.body.mensaje }}\"\n---\n\nTu tarea es generar una respuesta cordial y profesional para enviar por correo electrónico a esta persona.\n\nInstrucciones para la respuesta:\n1. Saluda al usuario por su nombre (Estimado/a {{ $json.body.nombre }}).\n2. Agradece su interés en la residencia \"{{ $json.body.residencia }}\".\n3. Responde directamente a su mensaje y motivo.\n    - Si el motivo es \"Agendar visita\", confirma la recepción y dile que un ejecutivo lo contactará pronto al teléfono {{ $json.body.telefono }} para coordinar.\n    - Si el motivo es \"Valores\" o \"Disponibilidad\", indícale que la información detallada le será enviada en breve por el equipo de admisiones.\n    - Para otros motivos, agradece la consulta e indica que será revisada.\n4. La respuesta debe ser cálida y no superar los 3 párrafos.\n5. Firma como \"Equipo de Admisiones, Hogar San Luciano\".\n\nGenera SOLAMENTE el cuerpo del mensaje de correo, sin asuntos ni textos introductorios fuera del correo."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        304,
+        1952
+      ],
+      "id": "9b1b97b0-59d2-4d3d-9d5b-5ed03f6bc3f6",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "lx5lcIR84CJxdugs",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $node[\"Webhook10\"].json.body.correo}}",
+        "subject": "={{ $node[\"Webhook10\"].json.body.motivo }}",
+        "emailType": "text",
+        "message": "={{ $node[\"Message a model\"].json.content.parts[0].text || \"Mensaje no disponible\" }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        624,
+        1952
+      ],
+      "id": "27be115c-b3d3-4bf9-a782-29cf74e2353e",
+      "name": "Send a message",
+      "webhookId": "3501f794-9308-4c2e-bb6b-d48fda76c379",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "70a7RzLb3DYKM84M",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        832,
+        1952
+      ],
+      "id": "19dba6af-2ce9-4749-8a91-4c6fbcb5542d",
+      "name": "Respond to Webhook10"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2144,
+        832
+      ],
+      "id": "29310656-69f8-4a70-a449-a1eb70f349fa",
+      "name": "Aggregate3"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtener datos directamente del webhook\nconst body = $node.Webhook16.json.body;\n\nconsole.log('📥 DATOS DEL WEBHOOK RECIBIDOS:', JSON.stringify(body, null, 2));\n\nlet residente_nombre = 'Desconocido';\nlet residente_edad = 'Desconocida';\nlet residente_diagnosticos = 'Sin diagnósticos';\nlet residente_medicamentos = 'Sin medicamentos';\nlet residente_estado_cognitivo = 'No especificado';\nlet signosTexto = '';\n\n// Extraer de ficha_residente (enviada desde React)\nif (body.ficha_residente) {\n  const ficha = body.ficha_residente;\n  console.log('✅ Ficha residente encontrada:', ficha.nombre_completo);\n  \n  residente_nombre = ficha.nombre_completo || 'Desconocido';\n  residente_diagnosticos = ficha.diagnosticos_actuales || 'Sin diagnósticos';\n  residente_medicamentos = ficha.medicamentos_actuales || 'Sin medicamentos';\n  residente_estado_cognitivo = ficha.estado_cognitivo || 'No especificado';\n  \n  // Calcular edad\n  if (ficha.fecha_nacimiento) {\n    const fechaNac = new Date(ficha.fecha_nacimiento);\n    const hoy = new Date();\n    if (!isNaN(fechaNac)) {\n      residente_edad = hoy.getFullYear() - fechaNac.getFullYear();\n      const mes = hoy.getMonth() - fechaNac.getMonth();\n      if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {\n        residente_edad--;\n      }\n    }\n  }\n} else {\n  console.error('❌ No se encontró ficha_residente en el body');\n}\n\n// Extraer signos vitales (enviados desde React)\nif (body.signos_vitales && Array.isArray(body.signos_vitales) && body.signos_vitales.length > 0) {\n  console.log('✅ Signos vitales encontrados:', body.signos_vitales.length, 'registros');\n  \n  signosTexto = body.signos_vitales.map((s, index) => {\n    const fecha = s.fecha_registro ? new Date(s.fecha_registro).toLocaleString('es-ES') : 'Sin fecha';\n    const temp = s.temperatura || 'N/A';\n    const paSist = s.presion_sistolica || 'N/A';\n    const paDiast = s.presion_diastolica || 'N/A';\n    const fc = s.frecuencia_cardiaca || 'N/A';\n    const sat = s.saturacion_oxigeno || 'N/A';\n    const obs = s.observaciones || 'Ninguna';\n    \n    return `Registro ${index + 1} [${fecha}]:\\n  - Temperatura: ${temp}°C\\n  - Presión Arterial: ${paSist}/${paDiast} mmHg\\n  - Frecuencia Cardíaca: ${fc} lpm\\n  - Saturación O2: ${sat}%\\n  - Observaciones: ${obs}`;\n  }).join('\\n\\n');\n  \n  console.log('📊 Signos vitales formateados correctamente');\n} else {\n  console.warn('⚠️ No hay registros de signos vitales o el array está vacío');\n  signosTexto = 'No hay registros recientes de signos vitales disponibles para análisis.';\n}\n\nconsole.log('✅ Datos preparados para IA');\nconsole.log('📋 Residente:', residente_nombre);\nconsole.log('📋 Edad:', residente_edad);\nconsole.log('📋 Signos vitales length:', signosTexto.length);\n\n// Extraer el último signo vital para acceso rápido\nlet ultimoSigno = {};\nif (body.signos_vitales && Array.isArray(body.signos_vitales) && body.signos_vitales.length > 0) {\n  ultimoSigno = body.signos_vitales[0];\n}\n\nreturn {\n  residente_nombre,\n  residente_edad,\n  residente_diagnosticos,\n  residente_medicamentos,\n  residente_estado_cognitivo,\n  signos_vitales_historial: signosTexto,\n  id_residente: body.id_residente,\n  ficha_residente: body.ficha_residente,\n  signos_vitales: body.signos_vitales || [],\n  ultimo_signo_vital: ultimoSigno,\n  cantidad_signos: (body.signos_vitales && Array.isArray(body.signos_vitales)) ? body.signos_vitales.length : 0\n};"
+      },
+      "id": "f684ce48-7880-4329-b3bb-29c617e821d8",
+      "name": "Preparar Datos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        3040,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Eres el Coordinador de Cuidado del Hogar \"San Luciano\". Tu misión es escribir un informe diario para la **FAMILIA** del residente, con un tono cálido, empático, tranquilizador y claro.\n\nAnaliza los datos de: {{ $json.residente_nombre }}\nEdad: {{ $json.residente_edad }}\nDiagnósticos: {{ $json.residente_diagnosticos }}\nSignos Vitales Recientes:\n{{ $json.signos_vitales_historial }}\n\nInstrucciones de redacción:\n1. No uses jerga médica compleja (ej: en vez de \"Hipertensión grado 2\", di \"La presión está un poco más alta de lo habitual\").\n2. Enfócate en el bienestar y la tranquilidad de la familia.\n3. Si no hay datos recientes, invítalos amablemente a coordinar una toma de signos.\n\nIMPORTANTE: Tu respuesta debe ser ÚNICAMENTE un objeto JSON válido. No uses bloques de código markdown (```json), ni texto antes o después. Usa esta estructura exacta:\n\n{\n  \"resumen_general\": \"Un párrafo cálido resumiendo cómo se encuentra el residente hoy. Ej: 'Don Felipe se encuentra estable y de buen ánimo...'\",\n  \"tendencias\": {\n    \"presion_arterial\": \"Frase sencilla sobre su presión. Ej: 'Se mantiene en rangos normales'.\",\n    \"frecuencia_cardiaca\": \"Frase sencilla sobre su ritmo cardíaco.\",\n    \"saturacion_oxigeno\": \"Frase sencilla sobre su oxigenación.\",\n    \"temperatura\": \"Frase sencilla sobre su temperatura.\"\n  },\n  \"factores_riesgo\": [\n    { \n      \"factor\": \"Nombre simple del riesgo (ej: Caídas)\", \n      \"descripcion\": \"Explicación breve y preventiva para la familia.\", \n      \"nivel\": \"Bajo/Medio/Alto\" \n    }\n  ],\n  \"recomendaciones_preventivas\": [\n    \"Acción de cuidado que estamos realizando (ej: 'Le estamos ofreciendo más agua').\",\n    \"Otra acción de cuidado.\"\n  ],\n  \"alertas\": [\n    { \n      \"alerta\": \"Solo si hay algo urgente. Si todo está bien, dejar este array vacío.\", \n      \"urgencia\": \"Alta\", \n      \"accion_recomendada\": \"Lo que el equipo está haciendo al respecto.\" \n    }\n  ],\n  \"observaciones_generales\": \"Un mensaje de cierre cordial y profesional del equipo.\"\n}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        3232,
+        160
+      ],
+      "id": "85977155-f93f-48f1-8f68-a2bd6a531020",
+      "name": "Gemini IA",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "lx5lcIR84CJxdugs",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Obtener la respuesta cruda que viene del nodo Gemini\nconst item = $input.first();\nconst jsonInput = item.json;\n\nlet rawText = '';\n\n// --- LÓGICA DE EXTRACCIÓN CORREGIDA ---\n\n// CASO 1: Estructura exacta de tu captura de pantalla (content -> parts -> text)\nif (jsonInput.content && jsonInput.content.parts && Array.isArray(jsonInput.content.parts) && jsonInput.content.parts.length > 0) {\n    rawText = jsonInput.content.parts[0].text;\n} \n// CASO 2: Estructura alternativa de Google (response -> parts -> text)\nelse if (jsonInput.response && jsonInput.response.parts && Array.isArray(jsonInput.response.parts)) {\n    rawText = jsonInput.response.parts[0].text;\n} \n// CASO 3: Texto directo en 'text' (Salida estándar de LangChain)\nelse if (jsonInput.text) {\n    rawText = jsonInput.text;\n} \n// CASO 4: Texto directo en 'output'\nelse if (jsonInput.output) {\n    rawText = jsonInput.output;\n}\n// FALLBACK: Si algo falla, convertimos lo que sea que haya llegado a texto\nelse {\n    // Si llegamos aquí, tomamos el objeto entero y lo convertimos a string para no romper el flujo\n    rawText = JSON.stringify(jsonInput); \n}\n\n// --- BLINDAJE DE SEGURIDAD (Corrección de tu error línea 24) ---\n// Aseguramos que rawText sea SIEMPRE un string antes de usar .substring\nif (typeof rawText !== 'string') {\n    // Si por alguna razón sigue siendo un objeto, lo forzamos a string\n    rawText = JSON.stringify(rawText);\n}\n\nconsole.log('📥 Texto crudo recibido:', rawText.substring(0, 100) + '...');\n\n// 2. Limpiar el formato Markdown (Bloques de código ```json ... ```)\nconst cleanJson = rawText\n    .replace(/```json/g, '') // Elimina la apertura ```json\n    .replace(/```/g, '')     // Elimina el cierre ```\n    .trim();                 // Elimina espacios en blanco\n\n// 3. Parsear el string a Objeto Javascript Real\nlet parsedData = {};\n\ntry {\n    parsedData = JSON.parse(cleanJson);\n    console.log('✅ JSON parseado correctamente');\n} catch (error) {\n    console.error('❌ Error parseando JSON:', error.message);\n    console.log('Texto que falló:', cleanJson);\n    \n    // Estructura de emergencia\n    return {\n        resumen_general: \"Hubo un error técnico procesando la respuesta de la IA.\",\n        tendencias: {\n             presion_arterial: \"No disponible\",\n             frecuencia_cardiaca: \"No disponible\",\n             saturacion_oxigeno: \"No disponible\",\n             temperatura: \"No disponible\"\n        },\n        factores_riesgo: [],\n        recomendaciones_preventivas: [\"Revise los registros técnicos.\"],\n        alertas: [],\n        observaciones_generales: \"Error de formato.\"\n    };\n}\n\n// 4. Asegurar respuesta estructurada (Previene errores en React)\nconst respuestaSegura = {\n    resumen_general: parsedData.resumen_general || \"Sin resumen disponible.\",\n    tendencias: {\n        presion_arterial: parsedData.tendencias?.presion_arterial || \"Sin datos recientes.\",\n        frecuencia_cardiaca: parsedData.tendencias?.frecuencia_cardiaca || \"Sin datos recientes.\",\n        saturacion_oxigeno: parsedData.tendencias?.saturacion_oxigeno || \"Sin datos recientes.\",\n        temperatura: parsedData.tendencias?.temperatura || \"Sin datos recientes.\"\n    },\n    factores_riesgo: Array.isArray(parsedData.factores_riesgo) ? parsedData.factores_riesgo : [],\n    recomendaciones_preventivas: Array.isArray(parsedData.recomendaciones_preventivas) ? parsedData.recomendaciones_preventivas : [],\n    alertas: Array.isArray(parsedData.alertas) ? parsedData.alertas : [],\n    observaciones_generales: parsedData.observaciones_generales || \"Continuar monitoreo.\"\n};\n\nreturn respuestaSegura;"
+      },
+      "id": "b87ec602-37e5-481e-83f9-78adb9387a75",
+      "name": "Procesar Respuesta IA",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        3536,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtener el análisis de IA del nodo anterior\nconst analisisIA = $input.first().json;\n\n// Obtener datos preparados desde el nodo anterior\nconst datosPreparados = $('Preparar Datos').first().json;\nconst ficha = datosPreparados.ficha_residente || {};\n\nconsole.log('📦 Enriqueciendo respuesta final...');\nconsole.log('ID Residente:', datosPreparados.id_residente);\nconsole.log('Nombre:', datosPreparados.residente_nombre);\nconsole.log('Cantidad signos vitales:', datosPreparados.cantidad_signos);\n\nconst respuestaFinal = {\n  id_residente: datosPreparados.id_residente,\n  nombre: datosPreparados.residente_nombre,\n  fecha_generacion: new Date().toISOString(),\n  residente_info: {\n    edad: datosPreparados.residente_edad,\n    diagnosticos: datosPreparados.residente_diagnosticos,\n    medicamentos: datosPreparados.residente_medicamentos,\n    alergias: ficha.alergias || 'No registradas',\n    movilidad: ficha.tipo_movilidad || 'No especificada',\n    estado_cognitivo: datosPreparados.residente_estado_cognitivo,\n    cantidad_registros_analizados: datosPreparados.cantidad_signos || 0\n  },\n  analisis_ia: analisisIA,\n  estado: \"exitoso\",\n  metadata: {\n    fecha_consulta: new Date().toISOString(),\n    version_analisis: '3.0',\n    modelo_ia: 'Gemini 2.5 Pro'\n  }\n};\n\nconsole.log('✅ RESPUESTA FINAL COMPLETA GENERADA');\nconsole.log('Estado:', respuestaFinal.estado);\nconsole.log('Longitud resumen:', respuestaFinal.analisis_ia.resumen_general?.length || 0);\nconsole.log('Factores riesgo:', respuestaFinal.analisis_ia.factores_riesgo?.length || 0);\n\nreturn respuestaFinal;"
+      },
+      "id": "24e7b3b1-f264-496b-b3f5-db822858f2c5",
+      "name": "Enriquecer Respuesta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [
+        3744,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "eb34a92f-f583-418d-8582-6921cfbc3fb8",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        3936,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Flujo Resumen IA - Mejorado\n**Recibe datos de ficha_residente y signos_vitales desde React**\nProcesa la IA correctamente y valida todas las respuestas",
+        "height": 1776,
+        "width": 1760
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2752,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "a792d9a9-e404-454c-8742-9ee7cb12d37d",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "get-resumen-ia",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "463341e1-b476-4140-9886-b854e07330f7",
+      "name": "Webhook16",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        2816,
+        160
+      ],
+      "webhookId": "get-resumen-ia"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "coordinar-visita",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        2816,
+        368
+      ],
+      "id": "f77c76ea-876a-407e-99c9-51407990686d",
+      "name": "Webhook17",
+      "webhookId": "ddb6508c-e860-4570-bdb5-83fffae88056"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Eres un asistente de comunicación para el hogar de cuidado \"San Luciano\". Tu tarea es redactar un correo electrónico de confirmación de visita para la familia de un residente. El tono debe ser **cálido, empático, profesional y claro**.\n\nEl correo debe confirmar la visita y, MUY IMPORTANTE, solicitar una confirmación por parte del visitante el día anterior a la visita.\n\n**Datos recibidos del sistema:**\n- Nombre del residente: {{ $json.body.nombre_residente }}\n- Nombre del visitante: {{ $json.body.nombre_visitante }} {{ $json.body.apellido_visitante }}\n- Parentesco: {{ $json.body.parentesco }}\n- Fecha agendada: {{ $json.body.fecha_visita }} (La fecha viene en formato YYYY-MM-DD, por favor escríbela en el correo en formato de texto natural, ej: \"Viernes 21 de noviembre de 2025\")\n- Hora: {{ $json.body.hora_visita }}\n- Email visitante: {{ $json.body.email_solicitante }}\n- Teléfono: {{ $json.body.telefono_solicitante }}\n- Observaciones: {{ $json.body.observaciones }}\n\n**Instrucciones de redacción:**\n1. Si el campo \"Observaciones\" está vacío, ignóralo por completo. Si tiene texto, menciona amablemente que se ha tomado nota de la solicitud.\n2. Asegúrate de transformar la fecha numérica a un formato legible y amigable.\n3. No uses marcadores de posición como \"[Nombre]\", usa los datos reales proporcionados arriba.\n\n**Estructura del Correo (Usa este formato):**\n\nAsunto: Confirmación de Visita a {{ $json.body.nombre_residente }} - Hogar San Luciano\n\nEstimado/a {{ $json.body.nombre_visitante }} {{ $json.body.apellido_visitante }},\n\nEs un gusto saludarte. Te escribimos para confirmar que tu visita a **{{ $json.body.nombre_residente }}** ha sido agendada exitosamente.\n\n**Detalles de la visita:**\n📅 Fecha: [Inserta aquí la fecha en texto natural]\n🕒 Hora: {{ $json.body.hora_visita }}\n\n**IMPORTANTE: Confirmación requerida**\nPara garantizar la mejor organización y preparar adecuadamente a nuestro residente, **te solicitamos amablemente confirmar tu asistencia el día anterior a la visita**. Puedes hacerlo respondiendo a este correo o llamando a nuestro teléfono de contacto. Esto nos ayuda enormemente a mantener la logística y el bienestar en el hogar.\n\nQuedamos a tu disposición para cualquier duda o consulta que tengas antes de tu llegada.\n\nSaludos cordiales,\n\n**El Equipo de Cuidado del Hogar San Luciano**\n📧 Email: info@sanluciano.cl\n📞 Teléfono: +56 9 1234 5678"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        3024,
+        368
+      ],
+      "id": "10ab5c1f-edfb-49bb-92da-022008e60e54",
+      "name": "Message a model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "lx5lcIR84CJxdugs",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $node[\"Webhook17\"].json.body.email_solicitante}}",
+        "subject": "= {{ $node[\"Webhook17\"].json.body.nombre_visitante }}",
+        "emailType": "text",
+        "message": "={{ $node[\"Message a model1\"].json.content.parts[0].text || \"Mensaje no disponible\" }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3376,
+        368
+      ],
+      "id": "05eea876-6722-4c8c-a87b-31b972c0b102",
+      "name": "Send a message1",
+      "webhookId": "1c0871ff-d1e9-45ec-97d0-d2a390bcb0d4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "70a7RzLb3DYKM84M",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        3584,
+        368
+      ],
+      "id": "740c5a71-cbd4-461c-907a-b9104c498a69",
+      "name": "Respond to Webhook16"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "crear-anuncio-hogar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1744,
+        2624
+      ],
+      "id": "13df8c13-cf8b-4780-83e5-968596e3be48",
+      "name": "Webhook18",
+      "webhookId": "7bc8f847-1983-482a-99be-fefe3c9b810f"
+    },
+    {
+      "parameters": {
+        "table": {
+          "__rl": true,
+          "value": "anuncios_hogar",
+          "mode": "list",
+          "cachedResultName": "anuncios_hogar"
+        },
+        "dataMode": "defineBelow",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "titulo",
+              "value": "={{ $json.body.titulo }}"
+            },
+            {
+              "column": "categoria",
+              "value": "={{ $json.body.categoria }}"
+            },
+            {
+              "column": "contenido",
+              "value": "={{ $json.body.contenido }}"
+            },
+            {
+              "column": "fecha_publicacion",
+              "value": "={{ $json.body.fecha_publicacion }}"
+            },
+            {
+              "column": "id_usuario",
+              "value": "67"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        1968,
+        2624
+      ],
+      "id": "27553ed0-5478-4af0-861b-d7c4ccd67842",
+      "name": "Insert rows in a table4",
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2176,
+        2624
+      ],
+      "id": "b711ffa9-2dd2-4583-9ff9-8209a958f325",
+      "name": "Respond to Webhook17"
+    },
+    {
+      "parameters": {
+        "path": "get-anuncios-hogar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a76cd925-65ec-44be-9587-f4e5d373c109",
+      "name": "Webhook GET anuncios",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1744,
+        2848
+      ],
+      "webhookId": "790180e0-8052-48e0-81ae-6f53e7a6c44b"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, id_usuario, titulo, categoria, contenido, fecha_publicacion FROM anuncios_hogar ORDER BY fecha_publicacion DESC, id DESC;",
+        "options": {}
+      },
+      "id": "18eeccc2-4d4f-4cef-987f-4a38ea4712b7",
+      "name": "Query anuncios",
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        1968,
+        2848
+      ],
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.data }}",
+        "options": {}
+      },
+      "id": "e6601aa7-3b98-4a32-aef7-525e9873fab9",
+      "name": "Responder GET",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2368,
+        2848
+      ]
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2176,
+        2848
+      ],
+      "id": "f3255e46-d781-4db2-8e51-7947a02edefa",
+      "name": "Aggregate7"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "actualizar-anuncio-hogar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "96afc1dd-10c0-4b04-b7dd-7a6f786025f9",
+      "name": "Webhook PUT anuncio",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1744,
+        3056
+      ],
+      "webhookId": "b84f5acd-bdc9-4173-996b-be3820ef152e"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "options": {}
+      },
+      "id": "e8be7990-aa46-4f6b-843b-1ba543c49b58",
+      "name": "Responder update",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2208,
+        3056
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "eliminar-anuncio-hogar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a60c47f5-df74-47fc-b4df-f2566baae13e",
+      "name": "Webhook DELETE anuncio",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1728,
+        3248
+      ],
+      "webhookId": "991cf7d5-2455-42eb-8d71-71c5e3a0b018"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "options": {}
+      },
+      "id": "6dcea764-0bf3-44eb-b04c-b6136bdfb1a3",
+      "name": "Responder delete",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2192,
+        3248
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE anuncios_hogar\nSET\n    titulo = '{{ $json.body.titulo}}',\n    categoria = '{{ $json.body.categoria}}',\n    contenido = '{{ $json.body.contenido}}',\n    fecha_publicacion ='{{ $json.body.fecha_publicacion}}'\nWHERE id = {{ $json.body.id}};",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        1968,
+        3056
+      ],
+      "id": "f378fbd9-03c4-4d0d-9825-777ecae37b75",
+      "name": "Execute a SQL query10",
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM anuncios_hogar\nWHERE id = '{{ $json.body.id}}';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        1968,
+        3248
+      ],
+      "id": "1e43c1b2-d09d-47e6-b134-235603560f5b",
+      "name": "Execute a SQL query11",
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "get-estado-alerta-residente",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        2816,
+        608
+      ],
+      "id": "a24c8803-aaf6-470a-8f80-64b01a55720a",
+      "name": "Webhook Estado Residente1",
+      "webhookId": "3dd5aa29-c368-4344-9c63-4a83ceb6e068"
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "residenteId",
+              "type": "numberValue",
+              "numberValue": "={{ Number($json.query.id ?? $json.body.id ?? 0) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.1,
+      "position": [
+        3008,
+        608
+      ],
+      "id": "b0047c75-2bba-4c8f-ab51-5976e57788a9",
+      "name": "Preparar ID1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH ultimo_sv AS (\n  SELECT sv.id_residente,\n         sv.fecha_registro,\n         sv.saturacion_oxigeno,\n         sv.temperatura,\n         sv.frecuencia_cardiaca,\n         sv.presion_sistolica,\n         sv.presion_diastolica,\n         CASE\n           WHEN sv.saturacion_oxigeno < 90 OR sv.temperatura >= 38.5 OR sv.frecuencia_cardiaca NOT BETWEEN 45 AND 130 OR sv.presion_sistolica NOT BETWEEN 90 AND 180 THEN 'Crítico'\n           WHEN sv.saturacion_oxigeno <= 94 OR sv.temperatura >= 37.5 OR sv.frecuencia_cardiaca BETWEEN 100 AND 129 OR sv.presion_sistolica BETWEEN 140 AND 179 THEN 'Alerta'\n           ELSE 'Estable'\n         END AS estado_alerta,\n         CASE\n           WHEN sv.saturacion_oxigeno < 90 OR sv.temperatura >= 38.5 OR sv.frecuencia_cardiaca NOT BETWEEN 45 AND 130 OR sv.presion_sistolica NOT BETWEEN 90 AND 180 THEN 'Signos vitales críticos. Contactar al equipo médico.'\n           WHEN sv.saturacion_oxigeno <= 94 OR sv.temperatura >= 37.5 OR sv.frecuencia_cardiaca BETWEEN 100 AND 129 OR sv.presion_sistolica BETWEEN 140 AND 179 THEN 'Signos vitales fuera de rango. Mantener observación.'\n           ELSE 'Signos vitales dentro de parámetros normales.'\n         END AS descripcion_estado\n  FROM signos_vitales sv\n  WHERE sv.id_residente = {{$json.residenteId}}\n  ORDER BY sv.fecha_registro DESC\n  LIMIT 1\n)\nSELECT r.id AS residente_id,\n       r.nombre_completo,\n       COALESCE(usv.estado_alerta, 'Pendiente') AS estado_alerta,\n       CASE WHEN usv.estado_alerta IS NULL THEN 'Sin registros recientes.' ELSE usv.descripcion_estado END AS descripcion_estado,\n       DATE_FORMAT(usv.fecha_registro, '%Y-%m-%d %H:%i:%s') AS ultima_actualizacion,\n       CASE COALESCE(usv.estado_alerta, 'Pendiente')\n         WHEN 'Crítico' THEN 'status-critical'\n         WHEN 'Alerta' THEN 'status-alert'\n         WHEN 'Estable' THEN 'status-positive'\n         WHEN 'Pendiente' THEN 'status-pending'\n         ELSE 'status-neutral'\n       END AS estado_clase\nFROM ficha_residente r\nLEFT JOIN ultimo_sv usv ON r.id = usv.id_residente\nWHERE r.id = {{$json.residenteId}}\nLIMIT 1;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        3184,
+        608
+      ],
+      "id": "6135b866-1c93-40d5-87f7-e85e8cefd1ee",
+      "name": "Estado desde MySQL1",
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "return items.map(item => {\n  const data = item.json || {};\n  if (!data.residente_id) {\n    return { json: { error: 'Residente no encontrado o sin registros.', estado_alerta: 'Pendiente', descripcion: 'Sin registros recientes.', estado_clase: 'status-neutral' } };\n  }\n  return {\n    json: {\n      residente_id: data.residente_id,\n      nombre_completo: data.nombre_completo,\n      estado_alerta: data.estado_alerta,\n      descripcion: data.descripcion_estado,\n      estado_clase: data.estado_clase,\n      ultima_actualizacion: data.ultima_actualizacion\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        3360,
+        608
+      ],
+      "id": "ae0189df-5cc3-411d-a606-9cd08bf0874f",
+      "name": "Formato Estado1"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        3536,
+        608
+      ],
+      "id": "6ea5a40a-2431-4ad9-9b86-a63d4f50543b",
+      "name": "Responder1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "enviar-mensaje-equipo",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        2800,
+        816
+      ],
+      "id": "fe623520-f4ec-4dca-b089-679c06a66158",
+      "name": "Webhook19",
+      "webhookId": "e79f5296-cc16-4d81-bc9d-63f99cda8697"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.0-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.0-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Actúa como un asistente administrativo amable y profesional de la \"Residencia Hogar San Luciano\".\n\nTu tarea es redactar un correo electrónico de confirmación de recepción para un familiar que nos ha contactado a través del portal web.\n\nAquí están los datos recibidos del formulario:\n- Nombre del Familiar (Remitente): {{ $json.body.nombre_usuario }}\n- Nombre del Residente: {{ $json.body.nombre_residente }}\n- Asunto: {{ $json.body.asunto }}\n- Mensaje original: {{ $json.body.mensaje }}\n\nInstrucciones para la redacción:\n1. Saluda al familiar por su nombre.\n2. Confirma que hemos recibido su consulta sobre el residente mencionado.\n3. Mantén un tono cálido, empático y tranquilizador.\n4. Indícale que el equipo de cuidado revisará su mensaje y le responderá a la brevedad posible.\n5. No inventes información médica ni prometas acciones específicas, solo confirma la recepción.\n6. Despídete cordialmente a nombre del \"Equipo de Residencia Hogar San Luciano\".\n\nGenera solamente el cuerpo del correo, listo para enviar."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        3008,
+        816
+      ],
+      "id": "bcbd6ec1-45b5-4a11-9af1-824df609e13a",
+      "name": "Message a model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "lx5lcIR84CJxdugs",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $node[\"Webhook19\"].json.body.email_usuario}}",
+        "subject": "= {{ $node[\"Webhook19\"].json.body.nombre_usuario }}",
+        "emailType": "text",
+        "message": "={{ $node[\"Message a model2\"].json.content.parts[0].text || \"Mensaje no disponible\" }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3360,
+        816
+      ],
+      "id": "01de25c6-a3bc-42d3-bbb9-72280a9de2d4",
+      "name": "Send a message2",
+      "webhookId": "6319f24a-b6d6-4b6d-8b16-2e0a75888324",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "70a7RzLb3DYKM84M",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        3568,
+        816
+      ],
+      "id": "025805c6-7d04-4607-8249-2160398943cc",
+      "name": "Respond to Webhook18"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        2784,
+        1056
+      ],
+      "id": "57cc4a77-7d3d-44dd-b0eb-1acc96ad410d",
+      "name": "Telegram Trigger",
+      "webhookId": "40f45e94-a310-4d3d-b3cb-5af64cbe884f",
+      "credentials": {
+        "telegramApi": {
+          "id": "lbIHaj8zixqfu9io",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "return items.map(item => {\n  const message = item.json.message || {};\n  const text = ((message.text || '') + ' ' + (message.caption || '')).trim();\n  const chatId = message.chat && message.chat.id ? String(message.chat.id) : null;\n  const staticData = this.getWorkflowStaticData('global');\n  const match = text.match(/portal_familiar(?:[\\s_:\\-]+)(\\d{1,10})/i);\n  let selectedId = null;\n  if (match && match[1]) {\n    selectedId = match[1].trim();\n    if (chatId) {\n      const storeKey = 'resident:' + chatId;\n      staticData[storeKey] = selectedId;\n    }\n  } else if (chatId) {\n    const storeKey = 'resident:' + chatId;\n    selectedId = staticData[storeKey] || null;\n  }\n  item.json.selectedResidentId = selectedId;\n  return item;\n});"
+      },
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        2992,
+        1056
+      ],
+      "id": "ab06c2ab-d4b6-4aab-8ff5-e90e4e7d6ec1",
+      "name": "Resolve Resident Target"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($env.CRM_API_BASE || 'https://n8n.hogarsanlucianoo.com/webhook/') + ($env.GET_SIGNO_VITAL_INDIVIDUAL_WEBHOOK_ID || 'get-signo-vital-individual') }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "residente_id",
+              "value": "={{ $json.selectedResidentId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        3184,
+        1056
+      ],
+      "id": "8bda9bb2-8b36-448f-bd12-c3615a93f222",
+      "name": "Fetch Recent Vitals"
+    },
+    {
+      "parameters": {
+        "functionCode": "return items.map(item => {\n  const residentsResponse = item.json.residentSnapshot || {};\n  const vitalsResponse = item.json.vitalsSnapshot || {};\n  const fichaResponse = item.json.residentsFicha || {};\n\n  const datasetRaw = Array.isArray(residentsResponse.data)\n    ? residentsResponse.data\n    : (Array.isArray(residentsResponse.residentes)\n      ? residentsResponse.residentes\n      : (Array.isArray(residentsResponse)\n        ? residentsResponse\n        : []));\n\n  const vitalsRaw = Array.isArray(vitalsResponse.data)\n    ? vitalsResponse.data\n    : (Array.isArray(vitalsResponse.registros)\n      ? vitalsResponse.registros\n      : (Array.isArray(vitalsResponse)\n        ? vitalsResponse\n        : []));\n\n  const fichaRaw = Array.isArray(fichaResponse.data)\n    ? fichaResponse.data\n    : (Array.isArray(fichaResponse.residentes)\n      ? fichaResponse.residentes\n      : (Array.isArray(fichaResponse)\n        ? fichaResponse\n        : []));\n\n  const normalizeId = (entity, fallback = '') => {\n    if (!entity || typeof entity !== 'object') return fallback;\n    const candidate = entity.id || entity.residente_id || entity.id_residente || entity.residenteId || entity._id || entity.usuario_id;\n    return (candidate !== undefined && candidate !== null) ? String(candidate) : fallback;\n  };\n\n  const targetResidentId = item.json.selectedResidentId ? String(item.json.selectedResidentId) : null;\n  const filterByTarget = (collection) => {\n    if (!targetResidentId) return collection;\n    return collection.filter(entry => normalizeId(entry) === targetResidentId);\n  };\n\n  const dataset = filterByTarget(datasetRaw);\n  const vitals = filterByTarget(vitalsRaw);\n  const ficha = filterByTarget(fichaRaw);\n\n  const nameIndex = {};\n  dataset.forEach((resident, idx) => {\n    const id = normalizeId(resident, `tmp-${idx + 1}`);\n    nameIndex[id] = resident.nombre_completo || resident.nombre || resident.alias || `Residente ${idx + 1}`;\n  });\n\n  const vitalsByResident = {};\n  vitals.forEach((registro) => {\n    const residenteId = normalizeId(registro);\n    if (!residenteId) return;\n    const fecha = registro.fecha_registro || registro.fecha || registro.created_at || null;\n    const timestamp = fecha ? new Date(fecha).getTime() : 0;\n    const existing = vitalsByResident[residenteId];\n    if (!existing || timestamp > existing.timestamp) {\n      vitalsByResident[residenteId] = {\n        timestamp,\n        fechaLabel: fecha ? new Date(fecha).toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' }) : 'Sin fecha',\n        sistolica: registro.presion_sistolica || registro.presionSistolica || registro.sistolica || '-',\n        diastolica: registro.presion_diastolica || registro.presionDiastolica || registro.diastolica || '-',\n        temperatura: registro.temperatura ?? registro.temp ?? '-',\n        frecuencia: registro.frecuencia_cardiaca ?? registro.frecuencia ?? '-',\n        saturacion: registro.saturacion_oxigeno ?? registro.satO2 ?? '-',\n      };\n    }\n  });\n\n  const fichaByResident = {};\n  ficha.forEach((fichaItem, idx) => {\n    const id = normalizeId(fichaItem, `ficha-${idx}`);\n    if (!id) return;\n    fichaByResident[id] = fichaItem;\n  });\n\n  const formatVitals = (residentId) => {\n    const vital = vitalsByResident[residentId];\n    if (!vital) return 'Signos vitales: sin registro reciente.';\n    return `Signos vitales (${vital.fechaLabel}): TA ${vital.sistolica}/${vital.diastolica} | Temp ${vital.temperatura}°C | FC ${vital.frecuencia} lpm | SpO2 ${vital.saturacion}%`;\n  };\n\n  const formatFicha = (residentId, fallback = {}) => {\n    const fichaData = fichaByResident[residentId] || fallback;\n    const datos = [];\n    const diagnosticos = fichaData.diagnosticos_actuales || fichaData.diagnosticos || null;\n    const medicamentos = fichaData.medicamentos_actuales || fichaData.medicamentos || null;\n    const dieta = fichaData.tipo_dieta || fichaData.dieta || null;\n    const movilidad = fichaData.tipo_movilidad || null;\n    if (diagnosticos) datos.push(`Dx: ${diagnosticos}`);\n    if (medicamentos) datos.push(`Meds: ${medicamentos}`);\n    if (dieta) datos.push(`Dieta: ${dieta}`);\n    if (movilidad) datos.push(`Movilidad: ${movilidad}`);\n    return datos.length ? `Ficha: ${datos.join(' | ')}` : 'Ficha: sin datos adicionales.';\n  };\n\n  const residentSummary = dataset.slice(0, 40).map((resident, index) => {\n    const residentId = normalizeId(resident, `tmp-${index + 1}`);\n    const nombre = resident.nombre_completo || resident.nombre || `Residente ${index + 1}`;\n    const rut = resident.rut || 'RUT no informado';\n    const habitacion = resident.habitacion_numero || resident.habitacion || 'Sin habitación';\n    const estado = resident.estado || resident.estado_salud || 'Estado no registrado';\n    const contacto = resident.contacto_emergencia_nombre\n      ? `${resident.contacto_emergencia_nombre} (${resident.contacto_emergencia_telefono || 'sin teléfono'})`\n      : 'Contacto de emergencia no registrado';\n    return `• ${nombre} | RUT: ${rut} | Hab: ${habitacion} | Estado: ${estado} | ${contacto}\n  ${formatVitals(residentId)}\n  ${formatFicha(residentId, resident)}`;\n  }).join('\\n\\n');\n\n  const vitalsDigest = vitals.slice(0, 20).map((registro, index) => {\n    const residentId = normalizeId(registro, `sv-${index + 1}`);\n    const nombre = registro.nombre_residente || nameIndex[residentId] || `Residente ${index + 1}`;\n    const fecha = registro.fecha_registro || registro.fecha || registro.created_at || null;\n    const fechaLabel = fecha ? new Date(fecha).toLocaleString('es-CL', { dateStyle: 'short', timeStyle: 'short' }) : 'Sin fecha';\n    const sistolica = registro.presion_sistolica || registro.sistolica || '-';\n    const diastolica = registro.presion_diastolica || registro.diastolica || '-';\n    const temperatura = registro.temperatura ?? registro.temp ?? '-';\n    const frecuencia = registro.frecuencia_cardiaca ?? registro.frecuencia ?? '-';\n    const saturacion = registro.saturacion_oxigeno ?? registro.satO2 ?? '-';\n    return `• ${nombre} (${fechaLabel}) -> TA ${sistolica}/${diastolica}, Temp ${temperatura}°C, FC ${frecuencia} lpm, SpO2 ${saturacion}%`;\n  }).join('\\n');\n\n  const fichaDigest = ficha.slice(0, 20).map((fichaItem, index) => {\n    const residentId = normalizeId(fichaItem, `ficha-${index + 1}`);\n    const nombre = fichaItem.nombre_completo || nameIndex[residentId] || `Residente ${index + 1}`;\n    const diagnosticos = fichaItem.diagnosticos_actuales || fichaItem.diagnosticos || 'Sin diagnósticos registrados';\n    const medicamentos = fichaItem.medicamentos_actuales || fichaItem.medicamentos || 'Sin medicamentos registrados';\n    const dieta = fichaItem.tipo_dieta || fichaItem.dieta || 'Sin dieta registrada';\n    return `• ${nombre}: Dx ${diagnosticos}; Meds ${medicamentos}; Dieta ${dieta}`;\n  }).join('\\n');\n\n  item.json.residentContext = residentSummary || 'No hay residentes registrados en este momento.';\n  item.json.vitalsDigest = vitalsDigest || 'No hay registros recientes de signos vitales.';\n  item.json.fichaDigest = fichaDigest || 'No hay fichas administrativas disponibles.';\n  item.json.residentCount = dataset.length;\n  item.json.rawResidents = dataset.slice(0, 10);\n  return item;\n});"
+      },
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        3360,
+        1056
+      ],
+      "id": "f86f0caa-ae3b-4772-a72d-49d700e428df",
+      "name": "Build Resident Context"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ `Contexto institucional (total ${$json.residentCount || 0} residentes):\n${$json.residentContext}\n\nDATOS VITALES REALES (Prioridad Alta):\n- Presión: ${$json.presion_sistolica}/${$json.presion_diastolica}\n- Frecuencia Cardíaca: ${$json.frecuencia_cardiaca}\n- Saturación: ${$json.saturacion_oxigeno}\n- Temperatura: ${$json.temperatura}\n- Observación: \"${$json.observaciones}\"\n\nSignos vitales recientes (Resumen):\n${$json.vitalsDigest || 'Sin registros recientes.'}\n\nFicha clínica/administrativa:\n${$json.fichaDigest || 'Sin datos disponibles.'}\n\nMensaje del familiar: ${$('Telegram Trigger')?.item?.json?.message?.text || 'Hola (Mensaje de prueba)'}` }}",
+        "options": {
+          "systemMessage": "Eres el Asistente Virtual Oficial de la \"Residencia Hogar San Luciano\". Tu trabajo es responder consultas de familiares vía Telegram con un tono cálido, empático, profesional y tranquilizador.\n\nTU CONOCIMIENTO Y REGLAS DE ANÁLISIS:\n1.  **Prioridad de Datos:** Recibirás datos en formato crudo (números) y resúmenes de texto. Si el resumen dice \"No hay registros\" pero ves números en las variables (ej: temperatura, presion, etc.), **IGNORA el resumen y usa los números**.\n2.  **Interpretación de Signos Vitales (IMPORTANTE):**\n    * Si los valores son normales, comunícalo con calma.\n    * Si los valores son ALARMANTES (Ej: Presión > 160, Frecuencia Cardiaca < 50 o > 120), tu deber es informar el dato y **sugerir amablemente pero con firmeza contactar al personal de enfermería o administración de inmediato**.\n    * Datos recibidos en este input:\n        - Presión Sistólica/Diastólica (mmHg)\n        - Frecuencia Cardíaca (lpm)\n        - Saturación (% SpO2)\n        - Temperatura (°C)\n3.  **Privacidad:** Nunca menciones \"IDs\", \"códigos de base de datos\" (como resident_id o tens_id) ni digas \"según el JSON\". Habla natural.\n4.  **Límites:** No inventes diagnósticos médicos (ej: \"tiene hipertensión\"). Di \"la presión está elevada\".\n5.  **Manejo de Falta de Datos:** Si TODAS las variables son nulas o 0, pide amablemente el nombre del residente para buscar manualmente.\n\nESTILO DE RESPUESTA:\n- Usa emojis moderados (cálidos: 🌿, 🏠, 🩺, ✨).\n- Sé conciso, es un chat de Telegram.\n- Si el mensaje del familiar es un saludo, preséntate y ofrece ayuda."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        3552,
+        1056
+      ],
+      "id": "bcd07c89-828b-44aa-ba3f-7c631611b44d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        3904,
+        1056
+      ],
+      "id": "aa5045a2-f4ef-42b6-b621-70ffe80cdd89",
+      "name": "Send a text message",
+      "webhookId": "cd8e0b00-4e9a-404a-a1ae-d4d1de14c768",
+      "credentials": {
+        "telegramApi": {
+          "id": "lbIHaj8zixqfu9io",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        3552,
+        1248
+      ],
+      "id": "14067bf9-e421-40a3-80a8-1238c91c8873",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "lx5lcIR84CJxdugs",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        3664,
+        1248
+      ],
+      "id": "0b087e92-ff98-4b66-a50b-ee90a8400934",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "get-signo-vital-individual",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        2816,
+        1408
+      ],
+      "id": "d455540c-3466-4c2b-9135-f060a583aaab",
+      "name": "Webhook20",
+      "webhookId": "659de703-5730-4ba0-9f89-c7d84bb5d8dd"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM signos_vitales \nWHERE id_residente = {{ $json.body.residente_id }} \nORDER BY fecha_registro DESC \nLIMIT 1;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        3024,
+        1408
+      ],
+      "id": "38808339-95b4-40b0-acea-44284d581997",
+      "name": "Execute a SQL query12",
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        3456,
+        1408
+      ],
+      "id": "9cb9c7b9-fc36-458b-8eba-ac7c3bddc4f8",
+      "name": "Respond to Webhook19"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        3232,
+        1408
+      ],
+      "id": "5bfb942d-3172-45cf-8219-7d8052fb0d29",
+      "name": "Aggregate8"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2368,
+        1232
+      ],
+      "id": "a2bee7e2-3482-4781-a3e3-56ee81bbd835",
+      "name": "Respond to Webhook9"
+    },
+    {
+      "parameters": {
+        "path": "obtener-kpis-dashboard",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1728,
+        1232
+      ],
+      "id": "f10e83d3-9594-4d1a-a089-032169bae322",
+      "name": "Webhook9",
+      "webhookId": "cd33efc7-f4f1-4fae-b786-46de283019bd"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n    -- CONTEOS (para los KPIs)\n    COUNT(DISTINCT r.id) AS total_activos,\n    \n    SUM(CASE \n        WHEN sv.id IS NOT NULL AND (\n            sv.saturacion_oxigeno < 90 OR \n            sv.temperatura >= 38.5 OR \n            sv.frecuencia_cardiaca > 130 OR sv.frecuencia_cardiaca < 45 OR\n            sv.presion_sistolica > 180 OR sv.presion_sistolica < 90\n        ) THEN 1 ELSE 0 \n    END) AS salud_critica,\n\n    SUM(CASE \n        WHEN sv.id IS NOT NULL AND (\n            (sv.saturacion_oxigeno BETWEEN 90 AND 94) OR \n            (sv.temperatura BETWEEN 37.5 AND 38.4) OR \n            (sv.frecuencia_cardiaca BETWEEN 100 AND 129) OR\n            (sv.presion_sistolica BETWEEN 140 AND 179)\n        ) AND NOT ( \n            sv.saturacion_oxigeno < 90 OR sv.temperatura >= 38.5 OR \n            sv.frecuencia_cardiaca > 130 OR sv.frecuencia_cardiaca < 45 OR\n            sv.presion_sistolica > 180 OR sv.presion_sistolica < 90\n        ) THEN 1 ELSE 0 \n    END) AS salud_alerta,\n\n    SUM(CASE \n        WHEN sv.id IS NOT NULL \n        AND NOT (\n            sv.saturacion_oxigeno < 90 OR sv.temperatura >= 38.5 OR \n            sv.frecuencia_cardiaca > 130 OR sv.frecuencia_cardiaca < 45 OR\n            sv.presion_sistolica > 180 OR sv.presion_sistolica < 90\n        )\n        AND NOT (\n            (sv.saturacion_oxigeno BETWEEN 90 AND 94) OR \n            (sv.temperatura BETWEEN 37.5 AND 38.4) OR \n            (sv.frecuencia_cardiaca BETWEEN 100 AND 129) OR\n            (sv.presion_sistolica BETWEEN 140 AND 179)\n        ) THEN 1 ELSE 0 \n    END) AS salud_estable,\n\n    SUM(CASE WHEN sv.id IS NULL THEN 1 ELSE 0 END) AS salud_pendiente,\n\n    -- =============================================\n    -- LISTAS DE RESIDENTES POR CATEGORÍA (para mostrar en el frontend)\n    -- =============================================\n    \n    -- CRÍTICOS: JSON array con IDs y nombres\n    JSON_ARRAYAGG(\n        CASE \n            WHEN sv.id IS NOT NULL AND (\n                sv.saturacion_oxigeno < 90 OR \n                sv.temperatura >= 38.5 OR \n                sv.frecuencia_cardiaca > 130 OR sv.frecuencia_cardiaca < 45 OR\n                sv.presion_sistolica > 180 OR sv.presion_sistolica < 90\n            ) THEN JSON_OBJECT(\n                'id', r.id,\n                'nombre_completo', r.nombre_completo,\n                'rut', r.rut,\n                'habitacion_numero', r.habitacion_numero,\n                'estado_salud', 'Crítico',\n                'temperatura', sv.temperatura,\n                'saturacion_oxigeno', sv.saturacion_oxigeno,\n                'frecuencia_cardiaca', sv.frecuencia_cardiaca,\n                'presion_sistolica', sv.presion_sistolica\n            ) \n        END\n    ) AS residentes_criticos,\n\n    -- ALERTA: JSON array con IDs y nombres\n    JSON_ARRAYAGG(\n        CASE \n            WHEN sv.id IS NOT NULL AND (\n                (sv.saturacion_oxigeno BETWEEN 90 AND 94) OR \n                (sv.temperatura BETWEEN 37.5 AND 38.4) OR \n                (sv.frecuencia_cardiaca BETWEEN 100 AND 129) OR\n                (sv.presion_sistolica BETWEEN 140 AND 179)\n            ) AND NOT ( \n                sv.saturacion_oxigeno < 90 OR sv.temperatura >= 38.5 OR \n                sv.frecuencia_cardiaca > 130 OR sv.frecuencia_cardiaca < 45 OR\n                sv.presion_sistolica > 180 OR sv.presion_sistolica < 90\n            ) THEN JSON_OBJECT(\n                'id', r.id,\n                'nombre_completo', r.nombre_completo,\n                'rut', r.rut,\n                'habitacion_numero', r.habitacion_numero,\n                'estado_salud', 'Alerta',\n                'temperatura', sv.temperatura,\n                'saturacion_oxigeno', sv.saturacion_oxigeno,\n                'frecuencia_cardiaca', sv.frecuencia_cardiaca,\n                'presion_sistolica', sv.presion_sistolica\n            ) \n        END\n    ) AS residentes_alerta,\n\n    -- ESTABLES: JSON array con IDs y nombres\n    JSON_ARRAYAGG(\n        CASE \n            WHEN sv.id IS NOT NULL \n            AND NOT (\n                sv.saturacion_oxigeno < 90 OR sv.temperatura >= 38.5 OR \n                sv.frecuencia_cardiaca > 130 OR sv.frecuencia_cardiaca < 45 OR\n                sv.presion_sistolica > 180 OR sv.presion_sistolica < 90\n            )\n            AND NOT (\n                (sv.saturacion_oxigeno BETWEEN 90 AND 94) OR \n                (sv.temperatura BETWEEN 37.5 AND 38.4) OR \n                (sv.frecuencia_cardiaca BETWEEN 100 AND 129) OR\n                (sv.presion_sistolica BETWEEN 140 AND 179)\n            ) THEN JSON_OBJECT(\n                'id', r.id,\n                'nombre_completo', r.nombre_completo,\n                'rut', r.rut,\n                'habitacion_numero', r.habitacion_numero,\n                'estado_salud', 'Estable',\n                'temperatura', sv.temperatura,\n                'saturacion_oxigeno', sv.saturacion_oxigeno,\n                'frecuencia_cardiaca', sv.frecuencia_cardiaca,\n                'presion_sistolica', sv.presion_sistolica\n            ) \n        END\n    ) AS residentes_estables,\n\n    -- PENDIENTES: JSON array con IDs y nombres (sin signo vital hoy)\n    JSON_ARRAYAGG(\n        CASE WHEN sv.id IS NULL THEN JSON_OBJECT(\n            'id', r.id,\n            'nombre_completo', r.nombre_completo,\n            'rut', r.rut,\n            'habitacion_numero', r.habitacion_numero,\n            'estado_salud', 'Pendiente'\n        ) \n        END\n    ) AS residentes_pendientes\n\nFROM ficha_residente r\nLEFT JOIN signos_vitales sv \n    ON r.id = sv.id_residente \n    AND DATE(sv.fecha_registro) = CURDATE()\n    AND sv.id = (\n        SELECT MAX(s2.id) \n        FROM signos_vitales s2 \n        WHERE s2.id_residente = r.id AND DATE(s2.fecha_registro) = CURDATE()\n    )\n\nWHERE r.estado = 'Activo';",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.5,
+      "position": [
+        1952,
+        1232
+      ],
+      "id": "2e26359d-07cc-46ab-9a89-9fac4b5e1c6c",
+      "name": "Execute a SQL query5",
+      "credentials": {
+        "mySql": {
+          "id": "9axxPNUkkKED7HsA",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        1232
+      ],
+      "id": "508d2287-3205-4445-a52a-14c308622353",
+      "name": "Aggregate4"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Insert rows in a table": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Select rows from a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select rows from a table": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Crypto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Crypto1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respuesta_Error_401",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto1": {
+      "main": [
+        [
+          {
+            "node": "Si_Compara_Hash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Si_Compara_Hash": {
+      "main": [
+        [
+          {
+            "node": "Cripto_JWT",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respuesta_Error_401",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cripto_JWT": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook2": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert rows in a table1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook3": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook4": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert rows in a table2": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook5": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook6": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query2": {
+      "main": [
+        [
+          {
+            "node": "Aggregate2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate2": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook7": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query3": {
+      "main": [
+        [
+          {
+            "node": "Aggregate3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook8": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query4": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook10": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook11": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query6": {
+      "main": [
+        [
+          {
+            "node": "Aggregate5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate5": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook12": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query7": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook13": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query8": {
+      "main": [
+        [
+          {
+            "node": "Aggregate6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate6": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook13",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook14": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query9": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook14",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook15": {
+      "main": [
+        [
+          {
+            "node": "Crypto2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto2": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert rows in a table3": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook15",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate3": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar Datos": {
+      "main": [
+        [
+          {
+            "node": "Gemini IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini IA": {
+      "main": [
+        [
+          {
+            "node": "Procesar Respuesta IA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Procesar Respuesta IA": {
+      "main": [
+        [
+          {
+            "node": "Enriquecer Respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enriquecer Respuesta": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook16": {
+      "main": [
+        [
+          {
+            "node": "Preparar Datos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook17": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook16",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook18": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert rows in a table4": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook17",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook GET anuncios": {
+      "main": [
+        [
+          {
+            "node": "Query anuncios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query anuncios": {
+      "main": [
+        [
+          {
+            "node": "Aggregate7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate7": {
+      "main": [
+        [
+          {
+            "node": "Responder GET",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook PUT anuncio": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook DELETE anuncio": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query10": {
+      "main": [
+        [
+          {
+            "node": "Responder update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query11": {
+      "main": [
+        [
+          {
+            "node": "Responder delete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Estado Residente1": {
+      "main": [
+        [
+          {
+            "node": "Preparar ID1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar ID1": {
+      "main": [
+        [
+          {
+            "node": "Estado desde MySQL1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Estado desde MySQL1": {
+      "main": [
+        [
+          {
+            "node": "Formato Estado1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formato Estado1": {
+      "main": [
+        [
+          {
+            "node": "Responder1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook19": {
+      "main": [
+        [
+          {
+            "node": "Message a model2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model2": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message2": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook18",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Resolve Resident Target",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve Resident Target": {
+      "main": [
+        [
+          {
+            "node": "Fetch Recent Vitals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Recent Vitals": {
+      "main": [
+        [
+          {
+            "node": "Build Resident Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Resident Context": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook20": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query12": {
+      "main": [
+        [
+          {
+            "node": "Aggregate8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate8": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook19",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook9": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query5": {
+      "main": [
+        [
+          {
+            "node": "Aggregate4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate4": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c70f510d-a3b1-4dda-87a9-d4b7435cdfa9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc31f6ae01d0f54b57a25891e4c81e6aa3f6ffa88d86ad81ddf403e14178fe55"
+  },
+  "id": "eHr4AFpmTDCIqjaN",
+  "tags": []
+}
